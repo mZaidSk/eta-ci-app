@@ -10,14 +10,16 @@ Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
       id: json['id'] as String,
       name: json['name'] as String,
       type: json['type'] as String,
-      colorHex: json['colorHex'] as String?,
-      icon: json['icon'] as String?,
+      user: json['user'] as String?,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'type': instance.type,
-      'colorHex': instance.colorHex,
-      'icon': instance.icon,
+      'user': instance.user,
+      'created_at': instance.createdAt?.toIso8601String(),
     };

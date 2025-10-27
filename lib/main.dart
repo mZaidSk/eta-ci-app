@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/app_providers.dart';
+import 'screens/auth_wrapper.dart';
 import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/ask_ai_screen.dart';
 import 'screens/profile_screen.dart';
@@ -29,10 +31,11 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: ThemeMode.system,
-        // initialRoute: LoginScreen.routeName,
-        initialRoute: HomeScreen.routeName,
+        initialRoute: AuthWrapper.routeName,
         routes: {
+          AuthWrapper.routeName: (_) => const AuthWrapper(),
           LoginScreen.routeName: (_) => const LoginScreen(),
+          RegisterScreen.routeName: (_) => const RegisterScreen(),
           HomeScreen.routeName: (_) => const HomeScreen(),
           AskAiScreen.routeName: (_) => const AskAiScreen(),
           ProfileScreen.routeName: (_) => const ProfileScreen(),

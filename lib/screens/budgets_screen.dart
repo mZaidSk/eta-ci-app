@@ -81,14 +81,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                 return _BudgetCard(
                   budget: budget,
                   onEdit: () => _showBudgetForm(budget),
-                  onDelete: () {
-                    // Implement delete logic
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Deleted budget ${budget.id}'),
-                      ),
-                    );
-                  },
+                  onDelete: () => _showDeleteDialog(budget),
                 );
               },
             ),
@@ -122,6 +115,43 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
           ),
           child: BudgetForm(budget: budget),
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(Budget budget) {
+    final categoryProvider = context.read<CategoryProvider>();
+    final category = categoryProvider.items
+        .where((c) => c.id == budget.category.toString())
+        .firstOrNull;
+    final categoryName = category?.name ?? 'Unknown Category';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Budget'),
+        content: Text(
+          'Are you sure you want to delete the budget for "$categoryName"?\n\nBudget: \$${budget.amount.toStringAsFixed(2)}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<BudgetProvider>().remove(budget.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Budget for "$categoryName" deleted'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
@@ -222,25 +252,245 @@ class _BudgetCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
+  String _getCategoryName(BuildContext context) {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final category = categoryProvider.items
+        .where((c) => c.id == budget.category.toString())
+        .firstOrNull;
+    return category?.name ?? 'Unknown Category';
+  }
+
+  Color _getCategoryColor(BuildContext context) {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final category = categoryProvider.items
+        .where((c) => c.id == budget.category.toString())
+        .firstOrNull;
+    if (category?.colorHex != null) {
+      try {
+        return Color(int.parse('0xFF${category!.colorHex}'));
+      } catch (_) {
+        return Theme.of(context).colorScheme.primary;
+      }
+    }
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  IconData _getCategoryIcon(BuildContext context) {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final category = categoryProvider.items
+        .where((c) => c.id == budget.category.toString())
+        .firstOrNull;
+    if (category?.icon != null) {
+      try {
+        return IconData(int.parse(category!.icon!), fontFamily: 'MaterialIcons');
+      } catch (_) {
+        return Icons.account_balance_wallet;
+      }
+    }
+    return Icons.account_balance_wallet;
+  }
+
+  String _formatDateRange() {
+    final startMonth = _getMonthName(budget.startDate.month);
+    final endMonth = _getMonthName(budget.endDate.month);
+    final startDay = budget.startDate.day;
+    final endDay = budget.endDate.day;
+
+    if (budget.startDate.month == budget.endDate.month) {
+      return '$startMonth $startDay-$endDay';
+    }
+    return '$startMonth $startDay - $endMonth $endDay';
+  }
+
+  String _getMonthName(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final categoryColor = _getCategoryColor(context);
+    final categoryIcon = _getCategoryIcon(context);
+    final categoryName = _getCategoryName(context);
+    final percentageSpent = budget.percentageSpent;
+    final isExceeded = budget.isExceeded;
+    final isWarning = percentageSpent >= 80 && !isExceeded;
+
+    // Determine status color
+    Color statusColor;
+    if (isExceeded) {
+      statusColor = colorScheme.error;
+    } else if (isWarning) {
+      statusColor = Colors.orange;
+    } else {
+      statusColor = colorScheme.primary;
+    }
+
     return Card(
       elevation: 0,
+      margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         side: BorderSide(
           color: colorScheme.outline.withOpacity(0.2),
           width: 1,
         ),
       ),
-      child: ListTile(
+      child: InkWell(
         onTap: onEdit,
-        title: Text('Budget Limit: \$${budget.amount}'),
-        subtitle: Text('Category: ${budget.categoryId}'),
-        trailing: IconButton(
-          icon: Icon(Icons.delete_outline, color: colorScheme.error),
-          onPressed: onDelete,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header row with category info and delete button
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: categoryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(categoryIcon, color: categoryColor, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          categoryName,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_outlined,
+                                size: 14,
+                                color: colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatDateRange(),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    tooltip: 'Delete budget',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Amount section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Spent',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${budget.currentExpense.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: statusColor,
+                            ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'of \$${budget.amount.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${percentageSpent.toStringAsFixed(0)}%',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: statusColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: (percentageSpent / 100).clamp(0.0, 1.0),
+                  minHeight: 10,
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Remaining amount
+              Row(
+                children: [
+                  Icon(
+                    isExceeded
+                        ? Icons.warning_rounded
+                        : Icons.savings_outlined,
+                    size: 16,
+                    color: isExceeded
+                        ? colorScheme.error
+                        : colorScheme.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    isExceeded
+                        ? 'Exceeded by \$${(-budget.remainingAmount).toStringAsFixed(2)}'
+                        : 'Remaining: \$${budget.remainingAmount.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: isExceeded
+                              ? colorScheme.error
+                              : colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

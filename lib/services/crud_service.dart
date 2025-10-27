@@ -12,7 +12,7 @@ class CrudService<T> extends BaseService {
   }
 
   Future<Response<dynamic>> getById(String id) {
-    return client.get('$endpoint/$id');
+    return client.get('$endpoint$id/');
   }
 
   Future<Response<dynamic>> create(Map<String, dynamic> data) {
@@ -20,11 +20,11 @@ class CrudService<T> extends BaseService {
   }
 
   Future<Response<dynamic>> update(String id, Map<String, dynamic> data) {
-    return client.put('$endpoint/$id', data: data);
+    return client.put('$endpoint$id/', data: data);
   }
 
   Future<Response<dynamic>> delete(String id) {
-    return client.delete('$endpoint/$id');
+    return client.delete('$endpoint$id/');
   }
 }
 

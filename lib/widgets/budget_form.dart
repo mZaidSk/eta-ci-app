@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/budget.dart';
 import '../models/category.dart';
 import '../providers/category_provider.dart';
+import '../providers/budget_provider.dart';
 
 class BudgetForm extends StatefulWidget {
   final Budget? budget;
@@ -31,8 +32,7 @@ class _BudgetFormState extends State<BudgetForm> {
         text: widget.budget?.currentExpense.toString() ?? '0.00');
 
     // Safely parse category ID
-    _selectedCategory =
-        widget.budget != null ? int.tryParse(widget.budget!.categoryId) : null;
+    _selectedCategory = widget.budget?.category;
 
     _startDate = widget.budget != null
         ? DateTime.tryParse(widget.budget!.startDate.toString())
@@ -72,18 +72,21 @@ class _BudgetFormState extends State<BudgetForm> {
     if (!_formKey.currentState!.validate()) return;
 
     final newBudget = Budget(
-      id: widget.budget?.id ??
-          DateTime.now().toIso8601String(), // Handle ID creation
-      categoryId: _selectedCategory?.toString() ?? '',
+      id: widget.budget?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      category: _selectedCategory ?? 0,
       amount: double.tryParse(_amountController.text) ?? 0.0,
       currentExpense: double.tryParse(_currentExpenseController.text) ?? 0.0,
       startDate: _startDate!,
       endDate: _endDate!,
     );
 
-    // TODO: save using provider or API
-    print(
-        'Budget saved: ${newBudget.amount}, Category: ${newBudget.categoryId}');
+    // Save using provider
+    final budgetProvider = context.read<BudgetProvider>();
+    if (widget.budget != null) {
+      budgetProvider.update(newBudget);
+    } else {
+      budgetProvider.add(newBudget);
+    }
     Navigator.of(context).pop();
   }
 

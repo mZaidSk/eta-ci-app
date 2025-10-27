@@ -1,10 +1,20 @@
 import 'package:dio/dio.dart';
 
 class ApiInterceptor extends Interceptor {
+  ApiInterceptor._();
+
+  static final ApiInterceptor _instance = ApiInterceptor._();
+
+  factory ApiInterceptor() => _instance;
+
   String? _token;
 
   void setToken(String? token) {
     _token = token;
+  }
+
+  void clearToken() {
+    _token = null;
   }
 
   @override
