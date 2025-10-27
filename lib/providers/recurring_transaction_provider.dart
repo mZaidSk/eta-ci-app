@@ -1,16 +1,16 @@
 import 'package:flutter/foundation.dart';
-import '../models/transaction.dart';
-import '../services/transaction_service.dart';
+import '../models/recurring_transaction.dart';
+import '../services/recurring_transaction_service.dart';
 
-class TransactionProvider extends ChangeNotifier {
-  final TransactionService _service = TransactionService();
+class RecurringTransactionProvider extends ChangeNotifier {
+  final RecurringTransactionService _service = RecurringTransactionService();
 
   bool _loading = false;
-  List<Transaction> _items = [];
+  List<RecurringTransaction> _items = [];
   String? _error;
 
   bool get isLoading => _loading;
-  List<Transaction> get items => _items;
+  List<RecurringTransaction> get items => _items;
   String? get error => _error;
 
   Future<void> fetch({Map<String, dynamic>? query}) async {
@@ -22,34 +22,34 @@ class TransactionProvider extends ChangeNotifier {
       final response = await _service.list(query: query);
       final data = response.data;
 
-      print('Transaction API Response: $data');
+      print('Recurring Transaction API Response: $data');
       print('Response type: ${data.runtimeType}');
 
       if (data is List) {
         // Direct list response
         _items = data.map((json) {
-          print('Parsing transaction: $json');
-          return Transaction.fromJson(json as Map<String, dynamic>);
+          print('Parsing recurring transaction: $json');
+          return RecurringTransaction.fromJson(json as Map<String, dynamic>);
         }).toList();
-        print('Successfully parsed ${_items.length} transactions');
+        print('Successfully parsed ${_items.length} recurring transactions');
       } else if (data is Map) {
         // Check for custom wrapper with "data" key
         if (data['data'] is List) {
           final dataList = data['data'] as List;
           _items = dataList.map((json) {
-            print('Parsing transaction: $json');
-            return Transaction.fromJson(json as Map<String, dynamic>);
+            print('Parsing recurring transaction: $json');
+            return RecurringTransaction.fromJson(json as Map<String, dynamic>);
           }).toList();
-          print('Successfully parsed ${_items.length} transactions from wrapped response');
+          print('Successfully parsed ${_items.length} recurring transactions from wrapped response');
         }
         // Check for Django REST Framework pagination with "results" key
         else if (data['results'] is List) {
           final results = data['results'] as List;
           _items = results.map((json) {
-            print('Parsing transaction: $json');
-            return Transaction.fromJson(json as Map<String, dynamic>);
+            print('Parsing recurring transaction: $json');
+            return RecurringTransaction.fromJson(json as Map<String, dynamic>);
           }).toList();
-          print('Successfully parsed ${_items.length} transactions from paginated response');
+          print('Successfully parsed ${_items.length} recurring transactions from paginated response');
         } else {
           print('Unexpected data format: $data');
           _items = [];
@@ -59,7 +59,7 @@ class TransactionProvider extends ChangeNotifier {
         _items = [];
       }
     } catch (e, stackTrace) {
-      print('Error fetching transactions: $e');
+      print('Error fetching recurring transactions: $e');
       print('Stack trace: $stackTrace');
       _error = e.toString();
       _items = [];
@@ -69,7 +69,7 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> create(Transaction transaction) async {
+  Future<bool> create(RecurringTransaction transaction) async {
     try {
       final response = await _service.create(transaction.toJson());
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -84,7 +84,7 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> update(String id, Transaction transaction) async {
+  Future<bool> update(String id, RecurringTransaction transaction) async {
     try {
       final response = await _service.update(id, transaction.toJson());
       if (response.statusCode == 200) {
@@ -115,11 +115,13 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  List<Transaction> getByType(String type) {
-    return _items.where((t) => t.type.toLowerCase() == type.toLowerCase()).toList();
+  List<RecurringTransaction> getByFrequency(String frequency) {
+    return _items
+        .where((t) => t.frequency.toLowerCase() == frequency.toLowerCase())
+        .toList();
   }
 
-  double getTotalByType(String type) {
-    return getByType(type).fold(0.0, (sum, t) => sum + t.amount);
+  double getTotalAmount() {
+    return _items.fold(0.0, (sum, t) => sum + t.amount);
   }
 }

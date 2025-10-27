@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/dashboard_provider.dart';
-import '../providers/account_provider.dart';
-import '../models/account.dart';
-import 'ask_ai_screen.dart';
 import 'categories_screen.dart';
 import 'transactions_screen.dart';
 import 'budgets_screen.dart';
 import 'accounts_screen.dart';
 import 'profile_screen.dart';
+import 'chat_screen.dart';
 import '../widgets/fancy_bottom_nav.dart';
-import '../widgets/account_form.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DashboardProvider>().fetchStats();
-      context.read<AccountProvider>().fetch();
     });
   }
 
@@ -121,10 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
       homeTab,
       const CategoriesScreen(),
       const BudgetsScreen(),
-      AccountsScreenBody(
-        onShowAccountForm: _showAccountForm,
-        onShowDeleteDialog: _showDeleteDialog,
-      ),
+      const AccountsScreen(),
     ];
 
     return Scaffold(
@@ -155,7 +148,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: IndexedStack(index: _currentIndex, children: tabs),
+      body: Stack(
+        children: [
+          IndexedStack(index: _currentIndex, children: tabs),
+          // Floating chatbot button
+          Positioned(
+            right: 16,
+            bottom: 90,
+            child: FloatingActionButton(
+              heroTag: 'chatbot_fab',
+              onPressed: () => Navigator.of(context).pushNamed(ChatScreen.routeName),
+              tooltip: 'AI Assistant',
+              child: const Icon(Icons.smart_toy_rounded),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: FancyBottomNav(
         items: const [
           FancyNavItem(icon: Icons.home_rounded, label: 'Home'),
@@ -168,52 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: (i) => setState(() => _currentIndex = i),
         onCenterTap: () =>
             Navigator.of(context).pushNamed(TransactionsScreen.routeName),
-      ),
-      // floatingActionButton: _currentIndex == 3
-      //     ? FloatingActionButton.extended(
-      //         onPressed: () => _showAccountForm(context, null),
-      //         icon: const Icon(Icons.add_rounded),
-      //         label: const Text('Add Account'),
-      //       )
-      //     : null,
-    );
-  }
-
-  void _showAccountForm(BuildContext context, Account? account) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: AccountForm(account: account),
-      ),
-    );
-  }
-
-  void _showDeleteDialog(BuildContext context, Account account) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: Text('Are you sure you want to delete "${account.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.read<AccountProvider>().remove(account.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Account "${account.name}" deleted')),
-              );
-            },
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }
@@ -261,25 +223,6 @@ class _SummaryCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ActionChip extends StatelessWidget {
-  const _ActionChip(
-      {required this.label, required this.icon, required this.onTap});
-
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: Icon(icon),
-      label: Text(label),
-      onPressed: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     );
   }
 }

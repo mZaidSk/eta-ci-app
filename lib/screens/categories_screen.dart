@@ -13,16 +13,23 @@ class CategoriesScreen extends StatefulWidget {
   State<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  // 0 => Income (default), 1 => Expense
-  int _selectedIndex = 0;
+class _CategoriesScreenState extends State<CategoriesScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().fetch();
     });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -30,150 +37,41 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final provider = context.watch<CategoryProvider>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Filter categories by selected tab
-    final selectedType = _selectedIndex == 0 ? 'income' : 'expense';
-    final filteredItems = provider.items
-        .where((c) => c.type.toLowerCase() == selectedType)
-        .toList();
-
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
-        title: const Text('All Categories'),
+        title: const Text('Categories'),
         elevation: 0,
         scrolledUnderElevation: 1,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withOpacity(0.08),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  _buildToggleButton(
-                    label: 'Income',
-                    isSelected: _selectedIndex == 0,
-                    colorScheme: colorScheme,
-                    onTap: () => setState(() => _selectedIndex = 0),
-                  ),
-                  _buildToggleButton(
-                    label: 'Expense',
-                    isSelected: _selectedIndex == 1,
-                    colorScheme: colorScheme,
-                    onTap: () => setState(() => _selectedIndex = 1),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Income', icon: Icon(Icons.arrow_downward)),
+            Tab(text: 'Expense', icon: Icon(Icons.arrow_upward)),
+          ],
         ),
         actions: [
           IconButton(
             tooltip: 'Add Category',
             icon: const Icon(Icons.add),
             onPressed: () => _showCategoryForm(null),
-          ),
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            onPressed: () => provider.fetch(),
-          ),
+          )
         ],
       ),
-      body: Builder(
-        builder: (_) {
-          if (provider.isLoading && provider.items.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (provider.error != null) {
-            return _ErrorView(
-              message: provider.error!,
-              onRetry: provider.fetch,
-            );
-          }
-
-          if (filteredItems.isEmpty) {
-            return _EmptyView(onAdd: () => _showCategoryForm(null));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () => provider.fetch(),
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.05,
-              ),
-              itemCount: filteredItems.length,
-              itemBuilder: (context, index) {
-                final category = filteredItems[index];
-                return _ModernCategoryCard(
-                  category: category,
-                  onEdit: () => _showCategoryForm(category),
-                  onDelete: () => _showDeleteDialog(category),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildToggleButton({
-    required String label,
-    required bool isSelected,
-    required ColorScheme colorScheme,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeInOut,
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  )
-                ]
-              : [],
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(25),
-          onTap: onTap,
-          splashColor: colorScheme.primary.withOpacity(0.2),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
-            ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _CategoriesTab(
+            type: 'income',
+            onShowForm: _showCategoryForm,
+            onShowDeleteDialog: _showDeleteDialog,
           ),
-        ),
+          _CategoriesTab(
+            type: 'expense',
+            onShowForm: _showCategoryForm,
+            onShowDeleteDialog: _showDeleteDialog,
+          ),
+        ],
       ),
     );
   }
@@ -235,11 +133,87 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 }
 
+/// ------------------ Tab Widgets ------------------
+
+class _CategoriesTab extends StatelessWidget {
+  const _CategoriesTab({
+    required this.type,
+    required this.onShowForm,
+    required this.onShowDeleteDialog,
+  });
+
+  final String type;
+  final Function(Category?) onShowForm;
+  final Function(Category) onShowDeleteDialog;
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<CategoryProvider>();
+
+    // Filter categories by type
+    final filteredItems = provider.items
+        .where((c) => c.type.toLowerCase() == type.toLowerCase())
+        .toList();
+
+    if (provider.isLoading && provider.items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.error != null) {
+      return _ErrorView(
+        message: provider.error!,
+        onRetry: provider.fetch,
+      );
+    }
+
+    if (filteredItems.isEmpty) {
+      return _EmptyView(
+        message: 'No ${type.toLowerCase()} categories yet',
+        description:
+            'Add your first ${type.toLowerCase()} category to get started',
+        icon: Icons.category_outlined,
+        onAdd: () => onShowForm(null),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => provider.fetch(),
+      child: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.05,
+        ),
+        itemCount: filteredItems.length,
+        itemBuilder: (context, index) {
+          final category = filteredItems[index];
+          return _ModernCategoryCard(
+            category: category,
+            onEdit: () => onShowForm(category),
+            onDelete: () => onShowDeleteDialog(category),
+          );
+        },
+      ),
+    );
+  }
+}
+
 /// ------------------ Helper Widgets ------------------
 
 class _EmptyView extends StatelessWidget {
+  final String message;
+  final String description;
+  final IconData icon;
   final VoidCallback onAdd;
-  const _EmptyView({required this.onAdd});
+
+  const _EmptyView({
+    required this.message,
+    required this.description,
+    required this.icon,
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,15 +224,15 @@ class _EmptyView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.category_outlined, size: 72, color: colorScheme.primary),
+            Icon(icon, size: 72, color: colorScheme.primary),
             const SizedBox(height: 16),
             Text(
-              'No Categories Yet',
+              message,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first category to get started',
+              description,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,

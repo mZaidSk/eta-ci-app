@@ -42,14 +42,6 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
             icon: const Icon(Icons.add),
             onPressed: () => _showBudgetForm(null),
           ),
-          IconButton(
-            tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              categoryProvider.fetch();
-              budgetProvider.fetch();
-            },
-          ),
         ],
       ),
       body: Builder(
@@ -282,7 +274,8 @@ class _BudgetCard extends StatelessWidget {
         .firstOrNull;
     if (category?.icon != null) {
       try {
-        return IconData(int.parse(category!.icon!), fontFamily: 'MaterialIcons');
+        return IconData(int.parse(category!.icon!),
+            fontFamily: 'MaterialIcons');
       } catch (_) {
         return Icons.account_balance_wallet;
       }
@@ -303,7 +296,20 @@ class _BudgetCard extends StatelessWidget {
   }
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return months[month - 1];
   }
 
@@ -364,9 +370,10 @@ class _BudgetCard extends StatelessWidget {
                       children: [
                         Text(
                           categoryName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -374,12 +381,14 @@ class _BudgetCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.calendar_today_outlined,
-                                size: 14,
-                                color: colorScheme.onSurfaceVariant),
+                                size: 14, color: colorScheme.onSurfaceVariant),
                             const SizedBox(width: 4),
                             Text(
                               _formatDateRange(),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
                             ),
@@ -414,10 +423,11 @@ class _BudgetCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '\$${budget.currentExpense.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: statusColor,
+                                ),
                       ),
                     ],
                   ),
@@ -432,17 +442,19 @@ class _BudgetCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           '${percentageSpent.toStringAsFixed(0)}%',
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: statusColor,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: statusColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                     ],
@@ -467,13 +479,9 @@ class _BudgetCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    isExceeded
-                        ? Icons.warning_rounded
-                        : Icons.savings_outlined,
+                    isExceeded ? Icons.warning_rounded : Icons.savings_outlined,
                     size: 16,
-                    color: isExceeded
-                        ? colorScheme.error
-                        : colorScheme.primary,
+                    color: isExceeded ? colorScheme.error : colorScheme.primary,
                   ),
                   const SizedBox(width: 6),
                   Text(

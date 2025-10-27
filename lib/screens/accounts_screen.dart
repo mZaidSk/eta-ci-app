@@ -30,6 +30,13 @@ class _AccountsScreenState extends State<AccountsScreen> {
         title: const Text('Accounts'),
         elevation: 0,
         scrolledUnderElevation: 1,
+        actions: [
+          IconButton(
+            tooltip: 'Add Account',
+            icon: const Icon(Icons.add),
+            onPressed: () => _showAccountForm(context, null),
+          )
+        ],
       ),
       body: Consumer<AccountProvider>(
         builder: (context, provider, child) {
@@ -58,8 +65,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   Text(
                     provider.error!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
@@ -96,16 +103,18 @@ class _AccountsScreenState extends State<AccountsScreen> {
                     const SizedBox(height: 24),
                     Text(
                       'No accounts yet',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Add your first account to start tracking your finances',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
@@ -127,7 +136,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.all(16),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
@@ -265,7 +275,8 @@ class _ModernAccountCard extends StatelessWidget {
                       size: 20,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.3),
+                      backgroundColor:
+                          colorScheme.errorContainer.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -283,8 +294,8 @@ class _ModernAccountCard extends StatelessWidget {
               Text(
                 account.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -295,16 +306,16 @@ class _ModernAccountCard extends StatelessWidget {
               Text(
                 account.accountTypeDisplayName,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                      color: colorScheme.onSurfaceVariant,
+                    ),
               ),
 
               Text(
                 account.maskedNumber,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontFamily: 'monospace',
-                ),
+                      color: colorScheme.onSurfaceVariant,
+                      fontFamily: 'monospace',
+                    ),
               ),
 
               const Spacer(),
@@ -316,8 +327,8 @@ class _ModernAccountCard extends StatelessWidget {
                   Text(
                     'Balance',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                   ),
                   const SizedBox(height: 2),
                   Row(
@@ -325,24 +336,30 @@ class _ModernAccountCard extends StatelessWidget {
                       Text(
                         '\$${account.balance.abs().toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: isNegative ? colorScheme.error : colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                              color: isNegative
+                                  ? colorScheme.error
+                                  : colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                       if (isNegative) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: colorScheme.errorContainer,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             'DEBT',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onErrorContainer,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: colorScheme.onErrorContainer,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       ],
@@ -385,162 +402,5 @@ class _ModernAccountCard extends StatelessWidget {
       default:
         return Icons.account_balance_wallet;
     }
-  }
-}
-
-class AccountsScreenBody extends StatelessWidget {
-  const AccountsScreenBody({
-    super.key,
-    required this.onShowAccountForm,
-    required this.onShowDeleteDialog,
-  });
-
-  final void Function(BuildContext, Account?) onShowAccountForm;
-  final void Function(BuildContext, Account) onShowDeleteDialog;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Header with Accounts title and add button
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(
-                'Accounts',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              IconButton.filledTonal(
-                onPressed: () => onShowAccountForm(context, null),
-                icon: const Icon(Icons.add),
-                tooltip: 'Add Account',
-              ),
-            ],
-          ),
-        ),
-        // Accounts list content
-        Expanded(
-          child: Consumer<AccountProvider>(
-            builder: (context, provider, child) {
-              if (provider.isLoading && provider.items.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (provider.error != null) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error loading accounts',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        provider.error!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: () => provider.fetch(),
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              if (provider.items.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.account_balance_wallet_outlined,
-                            size: 40,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No accounts yet',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Add your first account to get started',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        FilledButton.icon(
-                          onPressed: () => onShowAccountForm(context, null),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add Account'),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
-              return GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: provider.items.length,
-                itemBuilder: (_, i) {
-                  final account = provider.items[i];
-                  return _ModernAccountCard(
-                    account: account,
-                    onEdit: () => onShowAccountForm(context, account),
-                    onDelete: () => onShowDeleteDialog(context, account),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
   }
 }

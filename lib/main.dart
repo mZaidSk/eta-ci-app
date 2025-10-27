@@ -13,6 +13,7 @@ import 'config/theme.dart';
 import 'screens/categories_screen.dart';
 import 'screens/transactions_screen.dart';
 import 'screens/budgets_screen.dart';
+import 'screens/chat_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
           CategoriesScreen.routeName: (_) => const CategoriesScreen(),
           TransactionsScreen.routeName: (_) => const TransactionsScreen(),
           BudgetsScreen.routeName: (_) => const BudgetsScreen(),
+          ChatScreen.routeName: (_) => const ChatScreen(),
         },
       ),
     );

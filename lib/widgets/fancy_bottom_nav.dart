@@ -95,15 +95,19 @@ class FancyBottomNav extends StatelessWidget {
               right: 0,
               top: -bubbleSize / 2,
               child: Center(
-                child: GestureDetector(
-                  onTap: onCenterTap,
-                  child: Material(
-                    color: selectedColor,
-                    elevation: bubbleElevation,
-                    shape: const CircleBorder(),
-                    child: SizedBox(
+                child: Material(
+                  color: selectedColor,
+                  elevation: bubbleElevation,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    onTap: onCenterTap,
+                    customBorder: const CircleBorder(),
+                    splashColor: Colors.white.withValues(alpha: 0.3),
+                    highlightColor: Colors.white.withValues(alpha: 0.2),
+                    child: Container(
                       width: bubbleSize,
                       height: bubbleSize,
+                      alignment: Alignment.center,
                       child: const Icon(Icons.add, color: Colors.white, size: 30),
                     ),
                   ),
