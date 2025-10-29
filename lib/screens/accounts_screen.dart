@@ -334,7 +334,7 @@ class _ModernAccountCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '\$${account.balance.abs().toStringAsFixed(2)}',
+                        '₹${account.balance.abs().toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: isNegative
                                   ? colorScheme.error

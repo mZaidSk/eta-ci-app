@@ -195,7 +195,7 @@ class _TransactionFormState extends State<TransactionForm> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: 'Amount',
-              prefixText: '\$ ',
+              prefixText: '₹ ',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

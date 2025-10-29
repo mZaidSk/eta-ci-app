@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'MCA Finance',
+              'FinFlow',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _SummaryCard(
             title: 'Total Income',
-            value: '\$${(data['total_income'] ?? 0).toStringAsFixed(2)}',
+            value: '₹${(data['total_income'] ?? 0).toStringAsFixed(2)}',
             color: colorScheme.primaryContainer,
             icon: Icons.arrow_downward_rounded,
           ),
@@ -326,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _SummaryCard(
             title: 'Total Expense',
-            value: '\$${(data['total_expense'] ?? 0).toStringAsFixed(2)}',
+            value: '₹${(data['total_expense'] ?? 0).toStringAsFixed(2)}',
             color: colorScheme.errorContainer,
             icon: Icons.arrow_upward_rounded,
           ),
@@ -420,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        '\$${actual.toStringAsFixed(2)} / \$${budgetAmount.toStringAsFixed(2)}',
+                        '₹${actual.toStringAsFixed(2)} / ₹${budgetAmount.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: progressColor,
                           fontWeight: FontWeight.bold,
@@ -439,8 +439,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 4),
                   Text(
                     remaining >= 0
-                        ? 'Remaining: \$${remaining.toStringAsFixed(2)}'
-                        : 'Over budget: \$${(-remaining).toStringAsFixed(2)}',
+                        ? 'Remaining: ₹${remaining.toStringAsFixed(2)}'
+                        : 'Over budget: ₹${(-remaining).toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: remaining >= 0
                               ? colorScheme.onSurfaceVariant
@@ -499,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               title: Text(category),
               trailing: Text(
-                '\$${total.toStringAsFixed(2)}',
+                '₹${total.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -560,7 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Icon(Icons.arrow_downward,
                                     size: 14, color: Colors.green),
                                 const SizedBox(width: 4),
-                                Text('\$${income.toStringAsFixed(2)}',
+                                Text('₹${income.toStringAsFixed(2)}',
                                     style: const TextStyle(fontSize: 13)),
                               ],
                             ),
@@ -570,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Icon(Icons.arrow_upward,
                                     size: 14, color: Colors.red),
                                 const SizedBox(width: 4),
-                                Text('\$${expense.toStringAsFixed(2)}',
+                                Text('₹${expense.toStringAsFixed(2)}',
                                     style: const TextStyle(fontSize: 13)),
                               ],
                             ),

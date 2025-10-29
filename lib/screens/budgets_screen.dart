@@ -123,7 +123,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Budget'),
         content: Text(
-          'Are you sure you want to delete the budget for "$categoryName"?\n\nBudget: \$${budget.amount.toStringAsFixed(2)}',
+          'Are you sure you want to delete the budget for "$categoryName"?\n\nBudget: ₹${budget.amount.toStringAsFixed(2)}',
         ),
         actions: [
           TextButton(
@@ -422,7 +422,7 @@ class _BudgetCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\$${budget.currentExpense.toStringAsFixed(2)}',
+                        '₹${budget.currentExpense.toStringAsFixed(2)}',
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -435,7 +435,7 @@ class _BudgetCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'of \$${budget.amount.toStringAsFixed(2)}',
+                        'of ₹${budget.amount.toStringAsFixed(2)}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -486,8 +486,8 @@ class _BudgetCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     isExceeded
-                        ? 'Exceeded by \$${(-budget.remainingAmount).toStringAsFixed(2)}'
-                        : 'Remaining: \$${budget.remainingAmount.toStringAsFixed(2)}',
+                        ? 'Exceeded by ₹${(-budget.remainingAmount).toStringAsFixed(2)}'
+                        : 'Remaining: ₹${budget.remainingAmount.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: isExceeded
                               ? colorScheme.error

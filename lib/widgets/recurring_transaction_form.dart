@@ -183,7 +183,7 @@ class _RecurringTransactionFormState extends State<RecurringTransactionForm> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: 'Amount',
-              prefixText: '\$ ',
+              prefixText: '₹ ',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

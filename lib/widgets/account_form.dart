@@ -116,7 +116,7 @@ class _AccountFormState extends State<AccountForm> {
                   decoration: const InputDecoration(
                     labelText: 'Balance',
                     hintText: '0.00',
-                    prefixText: '\$ ',
+                    prefixText: '₹ ',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
