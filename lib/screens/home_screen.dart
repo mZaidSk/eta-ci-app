@@ -9,6 +9,7 @@ import 'accounts_screen.dart';
 import 'profile_screen.dart';
 import 'chat_screen.dart';
 import '../widgets/fancy_bottom_nav.dart';
+import '../widgets/monthly_trend_chart.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -520,71 +521,9 @@ class _HomeScreenState extends State<HomeScreen> {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Monthly Trend',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: trends.take(3).map((trend) {
-                final month = trend['month'] ?? '';
-                final income = (trend['income'] ?? 0).toDouble();
-                final expense = (trend['expense'] ?? 0).toDouble();
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          month,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.arrow_downward,
-                                    size: 14, color: Colors.green),
-                                const SizedBox(width: 4),
-                                Text('₹${income.toStringAsFixed(2)}',
-                                    style: const TextStyle(fontSize: 13)),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                Icon(Icons.arrow_upward,
-                                    size: 14, color: Colors.red),
-                                const SizedBox(width: 4),
-                                Text('₹${expense.toStringAsFixed(2)}',
-                                    style: const TextStyle(fontSize: 13)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ],
+    return MonthlyTrendChart(
+      trends: trends,
+      colorScheme: colorScheme,
     );
   }
 }
