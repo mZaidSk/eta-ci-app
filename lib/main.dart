@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: buildAppProviders(),
       child: MaterialApp(
-        title: 'MCA Finance',
+        title: 'FinFlow',
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: ThemeMode.system,
@@ -46,7 +47,8 @@ class MyApp extends StatelessWidget {
           TransactionsScreen.routeName: (_) => const TransactionsScreen(),
           BudgetsScreen.routeName: (_) => const BudgetsScreen(),
           ChatScreen.routeName: (context) {
-            final conversationId = ModalRoute.of(context)?.settings.arguments as String?;
+            final conversationId =
+                ModalRoute.of(context)?.settings.arguments as String?;
             return ChatScreen(conversationId: conversationId);
           },
           ConversationsScreen.routeName: (_) => const ConversationsScreen(),
@@ -55,4 +57,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
