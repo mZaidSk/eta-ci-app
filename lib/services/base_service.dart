@@ -8,7 +8,7 @@ class BaseService {
       : _dio = Dio(BaseOptions(
           baseUrl: baseUrl ??
               const String.fromEnvironment('API_BASE_URL',
-                  defaultValue: 'http://192.168.0.102:8000/api'),
+                  defaultValue: 'http://192.168.0.104:8000/api'),
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 20),
           sendTimeout: const Duration(seconds: 20),

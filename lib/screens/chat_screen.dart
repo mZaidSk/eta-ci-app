@@ -21,10 +21,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<ChatProvider>();
       if (widget.conversationId != null) {
-        provider.loadConversation(widget.conversationId!);
+        await provider.loadConversation(widget.conversationId!);
+        // Scroll to bottom after loading messages with multiple attempts
+        Future.delayed(const Duration(milliseconds: 100), _scrollToBottomInstant);
+        Future.delayed(const Duration(milliseconds: 300), _scrollToBottomInstant);
+        Future.delayed(const Duration(milliseconds: 500), _scrollToBottomInstant);
       } else {
         provider.startNewConversation();
       }
@@ -41,12 +45,27 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       });
+    } else {
+      // If scroll controller doesn't have clients yet, try again after a longer delay
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (_scrollController.hasClients && mounted) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
+      });
+    }
+  }
+
+  void _scrollToBottomInstant() {
+    if (_scrollController.hasClients && mounted) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     }
   }
 
@@ -55,14 +74,16 @@ class _ChatScreenState extends State<ChatScreen> {
     if (message.isEmpty) return;
 
     final provider = context.read<ChatProvider>();
+    final conversationId = provider.currentConversation?.id;
+
     _messageController.clear();
 
     final success = await provider.sendMessage(
       message,
-      conversationId: provider.currentConversation?.id,
+      conversationId: conversationId,
     );
 
-    if (success) {
+    if (success && mounted) {
       _scrollToBottom();
     }
   }
@@ -176,14 +197,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FloatingActionButton(
+                  FilledButton(
                     onPressed: provider.isSending ? null : _sendMessage,
-                    mini: true,
+                    style: FilledButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(16),
+                    ),
                     child: provider.isSending
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.send),
                   ),
