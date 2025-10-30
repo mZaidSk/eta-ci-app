@@ -95,19 +95,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'MCA Finance',
+                    'FinFlow',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Sign in to continue',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
+                          color: Colors.grey,
+                        ),
                   ),
                   const SizedBox(height: 40),
                   TextFormField(
@@ -136,7 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
                           setState(() {
@@ -159,7 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : const Text(
                               'Login',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
@@ -172,7 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: auth.isLoading
                             ? null
                             : () {
-                                Navigator.of(context).pushNamed(RegisterScreen.routeName);
+                                Navigator.of(context)
+                                    .pushNamed(RegisterScreen.routeName);
                               },
                         child: const Text(
                           'Sign Up',
@@ -190,4 +194,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
