@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: buildAppProviders(),
       child: MaterialApp(
-        title: 'FinFlow',
+        title: 'MCA Finance',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
